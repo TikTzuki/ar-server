@@ -6,10 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.override.models.HyperEntity;
 import org.override.models.ExampleModel;
 import org.override.models.HyperRoute;
-import org.override.services.DictionaryService;
-import org.override.services.EstimatingPiService;
-import org.override.services.IPInfoService;
-import org.override.services.PersonalInfoService;
+import org.override.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +24,9 @@ public class Router extends ClientSocketHandler {
     IPInfoService ipInfoService;
     final
     PersonalInfoService personalInfoService;
+
+    @Autowired
+    SGUAcademicResult sguAcademicResult;
 
     public Router(EstimatingPiService estimatingPiService, DictionaryService dictionaryService, IPInfoService ipInfoService, PersonalInfoService personalInfoService) {
         this.estimatingPiService = estimatingPiService;
@@ -58,6 +58,9 @@ public class Router extends ClientSocketHandler {
                     break;
                 case HyperRoute.GET_EXAMPLE_PERSONAL_INFO:
                     response = personalInfoService.handleLookupPersonalInfo(headers);
+                    break;
+                case HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT:
+                    response = sguAcademicResult.handleLookupSGUAcademicResult(headers);
                     break;
                 default:
                     break;

@@ -36,7 +36,8 @@ public class Client {
             HyperRoute.GET_EXAMPLE_ESTIMATING_PI,
             HyperRoute.GET_EXAMPLE_DICTIONARY,
             HyperRoute.GET_EXAMPLE_LOOK_IP_INFO,
-            HyperRoute.GET_EXAMPLE_PERSONAL_INFO
+            HyperRoute.GET_EXAMPLE_PERSONAL_INFO,
+            HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT
     );
 
     public Client(String address, int port) throws ClassNotFoundException {
@@ -72,9 +73,10 @@ public class Client {
                     out.writeObject(requestJson);
                     String rawResponse = (String) in.readObject();
                     JsonObject response = gson.fromJson(rawResponse, JsonObject.class);
-                    System.out.println("Server response: " + response.get("body").getAsString());
+                    System.out.println("Server response: \n" + response.get("body").getAsString());
                 } catch (NumberFormatException e) {
                     log.error("You must enter a number");
+                } catch (ArrayIndexOutOfBoundsException ignore) {
                 }
             }
             in.close();
