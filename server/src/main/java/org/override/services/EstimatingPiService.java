@@ -7,6 +7,10 @@ import org.override.models.HyperException;
 import org.override.utils.ErrorCodes;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -40,15 +44,15 @@ public class EstimatingPiService {
                     new HyperException(ErrorCodes.BAD_REQUEST, null, "field required in headers: client_message")
             );
         }
-        double pi = estimatingPi(number);
+        String pi = estimatingPi(number);
         return HyperEntity.ok(pi);
     }
 
-    public double estimatingPi(long interval) {
+    public String estimatingPi(long interval) {
         int circlePoints = 0;
         int squarePoints = 0;
         double pi = 0;
-
+        Timestamp start = new Timestamp(new Date().getTime());
         for (long i = 0L; i < interval * interval; i++) {
             int min = -1;
             int max = 1;
@@ -64,7 +68,9 @@ public class EstimatingPiService {
 
             pi = (double) 4 * circlePoints / squarePoints;
         }
-        return pi;
+        Timestamp end = new Timestamp(new Date().getTime());
+        long duration = end.getTime() - start.getTime();
+        return String.format("{ \"duration (millisecond)\":\"%s\" , \"pi\":\"%s\"  }", duration, pi);
     }
 
 }

@@ -1,7 +1,6 @@
 package org.override;
 
 import org.override.core.Server;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,8 +11,11 @@ import java.io.*;
 @SpringBootApplication
 public class Application implements ApplicationRunner {
 
-    @Autowired
-    Server server;
+    final Server server;
+
+    public Application(Server server) {
+        this.server = server;
+    }
 
     public static void main(String[] args) throws IOException {
         SpringApplication.run(Application.class, args);

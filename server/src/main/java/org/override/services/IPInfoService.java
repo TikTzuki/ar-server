@@ -28,8 +28,11 @@ public class IPInfoService {
             "\uF0A7 Tra cứu IP: client gửi lệnh req x, với x là một địa chỉ IP public. Server trả lại client các\n" +
             "thông tin về IP x gồm: thành phố - quốc gia – châu lục mà IP đó thuộc về hoặc trả về\n" +
             "thông báo lỗi nếu IP không đúng format/IP private.";
-    @Autowired
-    Server server;
+    final Server server;
+
+    public IPInfoService(Server server) {
+        this.server = server;
+    }
 
     public HyperEntity<Object> handleLookupIpInfo(Map<String, String> headers) {
         String clientMessage = headers.get("client_message");
@@ -48,7 +51,7 @@ public class IPInfoService {
         if (message.matches("^req .+"))
             ip = message.replaceAll("req ", "");
         else if (message.equalsIgnoreCase("hello"))
-            return "publicAddress" + server.getInetAddress() + "privateAddress" + server.getLocalSocketAddress();
+            return String.format("{\"publicAddress\" : \"%s\", \"privateAddress\" : \"%s\" }", server.getInetAddress(), server.getLocalSocketAddress());
         else
             return HELP;
 

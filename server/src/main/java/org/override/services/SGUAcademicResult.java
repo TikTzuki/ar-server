@@ -36,11 +36,14 @@ public class SGUAcademicResult {
         StringBuilder result = new StringBuilder();
         try {
             Document document = Jsoup.connect(String.format(URL, message)).get();
-            System.out.println(document.body());
+            System.out.println(document);
             List<Element> tables = document.getElementsByClass("view-table");
             if (tables.size() == 0) {
                 return "NOT FOUND";
             }
+
+            result.append(getMemberInfo(document.getElementById("id_form")));
+
             Element table = tables.get(0);
             Elements rows = table.select("tr");
             Iterator<Element> itr = rows.iterator();
@@ -69,4 +72,11 @@ public class SGUAcademicResult {
         return result.toString();
     }
 
+    private String getMemberInfo(Element el) {
+        String name = el.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblTenSinhVien").text();
+        String placeOfBorn = el.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblNoiSinh").text();
+        String subject = el.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lbNganh").text();
+        String term = el.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblKhoaHoc").text();
+        return String.format("%s | %s | %s | %s \n", name, placeOfBorn, subject, term);
+    }
 }
