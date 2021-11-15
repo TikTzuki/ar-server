@@ -1,4 +1,4 @@
-package org.override.models;
+package org.override.core.models;
 
 public class HyperStatus {
     public static Integer OK = 200;

@@ -35,6 +35,7 @@ public class SocketService {
     public SocketService(String address, int port) throws ClassNotFoundException {
         try {
             socket = new Socket(address, port);
+            socket.setSoTimeout(30_000);
             log.info("Connected");
             out = new ObjectOutputStream(socket.getOutputStream());
             in = new ObjectInputStream(socket.getInputStream());

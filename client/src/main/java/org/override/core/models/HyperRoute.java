@@ -1,6 +1,4 @@
-package org.override.models;
-
-import java.io.Serializable;
+package org.override.core.models;
 
 public class HyperRoute {
     public static final String GET_EXAMPLE_DICTIONARY = "LOOK_UP_DICTIONARY";
