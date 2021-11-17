@@ -1,0 +1,2 @@
+- name: Classic Discord Webhooks
+  uses: Mist3r-Robot/classic-discord-webhook@v1.0.0
