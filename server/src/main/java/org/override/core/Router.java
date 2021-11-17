@@ -1,13 +1,12 @@
 package org.override.core;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import lombok.extern.log4j.Log4j2;
-import org.override.models.HyperEntity;
+import org.override.core.models.HyperEntity;
 import org.override.models.ExampleModel;
-import org.override.models.HyperRoute;
+import org.override.core.models.HyperRoute;
 import org.override.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,30 +20,37 @@ public class Router extends ClientSocketHandler {
     final IPInfoService ipInfoService;
     final PersonalInfoService personalInfoService;
     final SGUAcademicResult sguAcademicResult;
-    @Autowired
-    EvalService evalService;
+    final EvalService evalService;
 
-    public Router(EstimatingPiService estimatingPiService, DictionaryService dictionaryService, IPInfoService ipInfoService, PersonalInfoService personalInfoService, SGUAcademicResult sguAcademicResult) {
+    public Router(EstimatingPiService estimatingPiService, DictionaryService dictionaryService, IPInfoService ipInfoService, PersonalInfoService personalInfoService, SGUAcademicResult sguAcademicResult, EvalService evalService) {
         this.estimatingPiService = estimatingPiService;
         this.dictionaryService = dictionaryService;
         this.ipInfoService = ipInfoService;
         this.personalInfoService = personalInfoService;
         this.sguAcademicResult = sguAcademicResult;
+        this.evalService = evalService;
     }
 
     @Override
     public void handleRequest() throws IOException, ClassNotFoundException {
         String rawRequest;
-        HyperEntity<Object> response = HyperEntity.notFound("");
-
+        HyperEntity response = HyperEntity.notFound(null);
+        Gson gson = new Gson();
+        HyperEntity request;
         while ((rawRequest = (String) in.readObject()) != null) {
-            log.debug(rawRequest);
-            Gson gson = new Gson();
-            JsonObject request = gson.fromJson(rawRequest, JsonObject.class);
-            Map<String, String> headers = gson.fromJson(rawRequest, HyperEntity.class).headers;
-            switch (request.get("route").getAsString()) {
+            log.info(rawRequest);
+            try {
+                request = gson.fromJson(rawRequest, HyperEntity.class);
+            } catch (JsonSyntaxException ignore) {
+                out.writeObject(gson.toJson(response));
+                out.flush();
+                continue;
+            }
+
+            Map<String, String> headers = request.headers;
+            switch (request.route) {
                 case HyperRoute.GET_EXAMPLE_ESTIMATING_PI -> {
-                    ExampleModel ex = new Gson().fromJson(request.get("body"), ExampleModel.class);
+                    ExampleModel ex = gson.fromJson(request.body, ExampleModel.class);
                     response = estimatingPiService.handleEstimatingPi(headers, ex);
                 }
                 case HyperRoute.GET_EXAMPLE_DICTIONARY -> response = dictionaryService.handleLookUpDictionary(headers);
@@ -60,4 +66,5 @@ public class Router extends ClientSocketHandler {
             out.flush();
         }
     }
+
 }

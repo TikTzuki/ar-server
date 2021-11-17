@@ -3,20 +3,15 @@ import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import net.objecthunter.exp4j.Expression;
-import net.objecthunter.exp4j.ExpressionBuilder;
 import org.override.models.ExampleModel;
-import org.override.models.HyperEntity;
-import org.override.models.HyperRoute;
+import org.override.core.models.HyperEntity;
+import org.override.core.models.HyperRoute;
 
 import javax.script.*;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,8 +69,8 @@ public class Client {
                         put("client_message", finalLine);
                     }};
 //               REQUEST
-                    HyperEntity<ExampleModel> request = new HyperEntity<>(
-                            route, new ExampleModel("tiktzuki"), headers, null
+                    HyperEntity request = new HyperEntity(
+                            route, gson.toJson(new ExampleModel("tiktzuki")), headers, null
                     );
                     String requestJson = gson.toJson(request);
                     out.writeObject(requestJson);
@@ -101,11 +96,10 @@ public class Client {
         }
     }
 
-    public void sendRequest(HyperEntity<Object> data) throws ClassNotFoundException {
+    public void sendRequest(HyperEntity data) throws ClassNotFoundException {
     }
 
     public static void main(String[] args) throws ClassNotFoundException, ScriptException {
         new Client("localhost", 8000);
-
     }
 }

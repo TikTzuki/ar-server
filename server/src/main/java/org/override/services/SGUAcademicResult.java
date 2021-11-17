@@ -1,13 +1,14 @@
 package org.override.services;
 
+import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.override.models.HyperEntity;
-import org.override.models.HyperException;
-import org.override.utils.ErrorCodes;
+import org.override.models.ExampleModel;
+import org.override.core.models.HyperEntity;
+import org.override.core.models.HyperException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,16 +21,17 @@ import java.util.Map;
 public class SGUAcademicResult {
     public static final String URL = "http://thongtindaotao.sgu.edu.vn/Default.aspx?page=xemdiemthi&id=%s";
     public static final String TERM = "Học kỳ 1 - Năm học 2019-2020";
+    final Gson gson = new Gson();
 
-    public HyperEntity<Object> handleLookupSGUAcademicResult(Map<String, String> headers) {
+    public HyperEntity handleLookupSGUAcademicResult(Map<String, String> headers) {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(ErrorCodes.BAD_REQUEST, null, "field required: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, null, "field required: client_message")
             );
         }
         String info = lookupAcademicResult(clientMessage);
-        return HyperEntity.ok(info);
+        return HyperEntity.ok(new ExampleModel(info));
     }
 
     private String lookupAcademicResult(String message) {

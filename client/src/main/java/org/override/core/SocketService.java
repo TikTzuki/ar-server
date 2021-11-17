@@ -1,23 +1,52 @@
-package org.override.services;
+package org.override.core;
 
+import com.google.gson.Gson;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
-import org.override.models.DataEntity;
-import org.override.models.Route;
+import org.override.core.configs.Appconfig;
+import org.override.core.models.HyperBody;
+import org.override.core.models.HyperEntity;
 
-import java.io.*;
-import java.net.ConnectException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.*;
+import java.util.Map;
 
-@AllArgsConstructor
 @Log4j2
+@AllArgsConstructor
 @NoArgsConstructor
 public class SocketService {
+    Appconfig configs = Appconfig.getInstance();
+    private static final Gson gson = new Gson();
+
+    public HyperEntity sendRequest(HyperEntity request) throws IOException {
+        try {
+            Socket socket = new Socket(configs.host, configs.port);
+            socket.setSoTimeout(30_000);
+
+            ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
+            ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+
+            out.writeObject(gson.toJson(request));
+            HyperEntity response = gson.fromJson((String) in.readObject(), HyperEntity.class);
+
+            out.close();
+            in.close();
+            socket.close();
+            return response;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public HyperEntity sendRequest(String route, Map<String, String> headers, HyperBody body) throws IOException {
+        HyperEntity request = HyperEntity.request(route, headers, body);
+        return sendRequest(request);
+    }
+
     private static SocketService INSTANCE;
 
     public static SocketService getInstance() {
@@ -25,47 +54,5 @@ public class SocketService {
             INSTANCE = new SocketService();
         }
         return INSTANCE;
-    }
-
-    private Socket socket = null;
-    ObjectOutputStream out = null;
-    ObjectInputStream in = null;
-    BufferedReader stdIn = null;
-
-    public SocketService(String address, int port) throws ClassNotFoundException {
-        try {
-            socket = new Socket(address, port);
-            socket.setSoTimeout(30_000);
-            log.info("Connected");
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-            stdIn = new BufferedReader(new InputStreamReader(System.in));
-            String line = "";
-            while (!line.equalsIgnoreCase("bye")) {
-                line = stdIn.readLine();
-                Map<String, Object> headers = new HashMap<>() {{
-                    put("route", Route.GET_EXAMPLE_ESTIMATING_PI);
-                }};
-                DataEntity<Long> request = new DataEntity(Long.valueOf(line), headers, null);
-                out.writeObject(request);
-
-                DataEntity<Long> response = (DataEntity<Long>) in.readObject();
-                System.out.println(response);
-            }
-            in.close();
-            out.close();
-            socket.close();
-        } catch (UnknownHostException | SocketException e) {
-            log.info("Can't connect to server");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendRequest(DataEntity<Object> data) throws ClassNotFoundException {
-    }
-
-    public static void main(String[] args) throws ClassNotFoundException {
-        new SocketService("localhost", 8000);
     }
 }

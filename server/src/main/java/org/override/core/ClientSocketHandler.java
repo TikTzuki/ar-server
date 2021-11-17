@@ -1,15 +1,14 @@
 package org.override.core;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.log4j.Log4j2;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+@Log4j2
 public abstract class ClientSocketHandler implements Runnable {
-    private static final Logger logger = LogManager.getLogger(ClientSocketHandler.class);
     protected Socket clientSocket;
     protected ObjectOutputStream out;
     protected ObjectInputStream in;
@@ -18,7 +17,7 @@ public abstract class ClientSocketHandler implements Runnable {
 
     @Override
     public void run() {
-        logger.info("Client connected: " + clientSocket.getInetAddress().getHostAddress());
+        log.info("Client connected: " + clientSocket.getInetAddress().getHostAddress());
         try {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             in = new ObjectInputStream(clientSocket.getInputStream());
@@ -40,7 +39,7 @@ public abstract class ClientSocketHandler implements Runnable {
             in.close();
             out.close();
             clientSocket.close();
-            logger.info("Close client socket: " + clientSocket.getInetAddress().getHostAddress());
+            log.info("Close client socket: " + clientSocket.getInetAddress().getHostAddress());
         } catch (IOException e) {
             e.printStackTrace();
         }

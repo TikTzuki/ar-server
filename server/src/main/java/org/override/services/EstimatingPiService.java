@@ -2,14 +2,11 @@ package org.override.services;
 
 import lombok.extern.log4j.Log4j2;
 import org.override.models.ExampleModel;
-import org.override.models.HyperEntity;
-import org.override.models.HyperException;
-import org.override.utils.ErrorCodes;
+import org.override.core.models.HyperEntity;
+import org.override.core.models.HyperException;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.Map;
 
@@ -29,23 +26,23 @@ import java.util.Map;
 @Service
 public class EstimatingPiService {
 
-    public HyperEntity<Object> handleEstimatingPi(Map<String, String> headers, ExampleModel data) {
+    public HyperEntity handleEstimatingPi(Map<String, String> headers, ExampleModel data) {
         Long number;
         try {
             number = Long.valueOf(headers.get("client_message"));
         } catch (NumberFormatException e) {
             return HyperEntity.badRequest(
-                    new HyperException(ErrorCodes.BAD_REQUEST, null, "client_message must be digits")
+                    new HyperException(HyperException.BAD_REQUEST, null, "client_message must be digits")
             );
         }
         System.out.println(number);
         if (number == 0) {
             return HyperEntity.badRequest(
-                    new HyperException(ErrorCodes.BAD_REQUEST, null, "field required in headers: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, null, "field required in headers: client_message")
             );
         }
         String pi = estimatingPi(number);
-        return HyperEntity.ok(pi);
+        return HyperEntity.ok(new ExampleModel(pi));
     }
 
     public String estimatingPi(long interval) {

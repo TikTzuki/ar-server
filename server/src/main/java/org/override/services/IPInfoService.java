@@ -1,22 +1,15 @@
 package org.override.services;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.*;
 import org.override.core.Server;
 import org.override.models.ExampleModel;
-import org.override.models.HyperEntity;
-import org.override.models.HyperException;
-import org.override.utils.ErrorCodes;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.override.core.models.HyperEntity;
+import org.override.core.models.HyperException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -29,21 +22,22 @@ public class IPInfoService {
             "thông tin về IP x gồm: thành phố - quốc gia – châu lục mà IP đó thuộc về hoặc trả về\n" +
             "thông báo lỗi nếu IP không đúng format/IP private.";
     final Server server;
+    final Gson gson = new Gson();
 
     public IPInfoService(Server server) {
         this.server = server;
     }
 
-    public HyperEntity<Object> handleLookupIpInfo(Map<String, String> headers) {
+    public HyperEntity handleLookupIpInfo(Map<String, String> headers) {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(ErrorCodes.BAD_REQUEST, null, "field required in headers: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, null, "field required in headers: client_message")
             );
         }
         String info = lookUpIpInfo(clientMessage);
         log.info(info);
-        return HyperEntity.ok(info);
+        return HyperEntity.ok(new ExampleModel(info));
     }
 
     private String lookUpIpInfo(String message) {

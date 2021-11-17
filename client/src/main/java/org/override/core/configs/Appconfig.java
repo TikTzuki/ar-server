@@ -1,7 +1,4 @@
-package org.override.configs;
-
-import lombok.Value;
-import org.override.core.SocketService;
+package org.override.core.configs;
 
 public class Appconfig {
     public Integer port = 8000;

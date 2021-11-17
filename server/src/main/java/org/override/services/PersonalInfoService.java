@@ -5,9 +5,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.override.models.HyperEntity;
-import org.override.models.HyperException;
-import org.override.utils.ErrorCodes;
+import org.override.models.ExampleModel;
+import org.override.core.models.HyperEntity;
+import org.override.core.models.HyperException;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,16 +19,16 @@ import java.util.Map;
 public class PersonalInfoService {
     private String URL = "https://masothue.com/Search/?q=%s&type=auto&token=KlEOUzJ9n4&force-search=1";
 
-    public HyperEntity<Object> handleLookupPersonalInfo(Map<String, String> headers) {
+    public HyperEntity handleLookupPersonalInfo(Map<String, String> headers) {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(ErrorCodes.BAD_REQUEST, null, "field required client_message")
+                    new HyperException(HyperException.BAD_REQUEST, null, "field required client_message")
             );
         }
         String info = lookUpPersonalInfo(clientMessage);
         log.info(info);
-        return HyperEntity.ok(info);
+        return HyperEntity.ok(new ExampleModel(info));
     }
 
     private String lookUpPersonalInfo(String message) {

@@ -1,16 +1,14 @@
 package org.override.services;
 
 import lombok.extern.log4j.Log4j2;
-import org.override.models.HyperEntity;
-import org.override.models.HyperException;
-import org.override.utils.ErrorCodes;
+import org.override.models.ExampleModel;
+import org.override.core.models.HyperEntity;
+import org.override.core.models.HyperException;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.rmi.server.ExportException;
 import java.util.Map;
 
 /**
@@ -21,20 +19,20 @@ import java.util.Map;
 @Service
 @Log4j2
 public class DictionaryService {
-    public HyperEntity<Object> handleLookUpDictionary(Map<String, String> headers) {
+    public HyperEntity handleLookUpDictionary(Map<String, String> headers) {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(ErrorCodes.BAD_REQUEST, null, "field required in headers: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, null, "field required in headers: client_message")
             );
         }
         String word = lookUpDictionary(clientMessage);
         if (word == null)
             return HyperEntity.notFound(
-                    new HyperException(ErrorCodes.NOT_FOUND, null, "word not found")
+                    new HyperException(HyperException.NOT_FOUND, null, "word not found")
             );
         else
-            return HyperEntity.ok(word);
+            return HyperEntity.ok(new ExampleModel(word));
     }
 
     public String lookUpDictionary(String word) {
