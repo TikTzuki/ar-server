@@ -14,8 +14,8 @@ client request:
 }
 ```
 
-server response:
 
+server response:
 ```json
 {
   "route": "GET_RESULT",
@@ -26,6 +26,15 @@ server response:
   "body": {
     "key": "value"
   }
+}
+```
+server response exception:
+```json
+{
+  "status": 400,
+  "code": "BAD_REQUEST",
+  "loc": "headers -> clientMessage",
+  "detail": "clientMessage must be number"
 }
 ```
 

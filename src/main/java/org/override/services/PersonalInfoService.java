@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.override.core.models.HyperStatus;
 import org.override.models.ExampleModel;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
@@ -23,7 +24,7 @@ public class PersonalInfoService {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(HyperException.BAD_REQUEST, null, "field required client_message")
+                    new HyperException(HyperException.BAD_REQUEST, HyperStatus.BAD_REQUEST, null, "field required client_message")
             );
         }
         String info = lookUpPersonalInfo(clientMessage);

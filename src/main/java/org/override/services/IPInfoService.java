@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
 import okhttp3.*;
 import org.override.core.Server;
+import org.override.core.models.HyperStatus;
 import org.override.models.ExampleModel;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
@@ -32,7 +33,7 @@ public class IPInfoService {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(HyperException.BAD_REQUEST, null, "field required in headers: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, HyperStatus.BAD_REQUEST, null, "field required in headers: client_message")
             );
         }
         String info = lookUpIpInfo(clientMessage);

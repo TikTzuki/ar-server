@@ -1,6 +1,7 @@
 package org.override.services;
 
 import lombok.extern.log4j.Log4j2;
+import org.override.core.models.HyperStatus;
 import org.override.models.ExampleModel;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
@@ -23,13 +24,13 @@ public class DictionaryService {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(HyperException.BAD_REQUEST, null, "field required in headers: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, HyperStatus.BAD_REQUEST,null, "field required in headers: client_message")
             );
         }
         String word = lookUpDictionary(clientMessage);
         if (word == null)
             return HyperEntity.notFound(
-                    new HyperException(HyperException.NOT_FOUND, null, "word not found")
+                    new HyperException(HyperException.NOT_FOUND, HyperStatus.BAD_REQUEST, null, "word not found")
             );
         else
             return HyperEntity.ok(new ExampleModel(word));
