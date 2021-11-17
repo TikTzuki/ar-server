@@ -101,5 +101,6 @@ public class Client {
 
     public static void main(String[] args) throws ClassNotFoundException, ScriptException {
         new Client("localhost", 8000);
+
     }
 }
