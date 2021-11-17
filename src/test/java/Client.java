@@ -77,9 +77,9 @@ public class Client {
                     String rawResponse = (String) in.readObject();
                     JsonObject response = gson.fromJson(rawResponse, JsonObject.class);
                     try {
-                        System.out.println("Server response: \n" + response.get("body").getAsString());
+                        System.out.format("Server response: \n%s\n\n", response.get("body").getAsString());
                     } catch (Exception e) {
-                        System.out.println("Server response: \n" + response.get("body"));
+                        System.out.format("Server response: \n%s\n\n", response.get("body"));
                     }
                 } catch (NumberFormatException e) {
                     log.error("You must enter a number");
