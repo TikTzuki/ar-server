@@ -40,7 +40,9 @@ public class Client {
             HyperRoute.GET_EXAMPLE_ESTIMATING_PI,
             HyperRoute.GET_EXAMPLE_PERSONAL_INFO,
             HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT,
-            HyperRoute.GET_EXAMPLE_EVAL
+            HyperRoute.GET_EXAMPLE_EVAL,
+            HyperRoute.GET_EXAMPLE_TIKI_SERVICE,
+            HyperRoute.GET_TERM_RESULT
     );
 
     public Client(String address, int port) throws ClassNotFoundException {
@@ -52,21 +54,25 @@ public class Client {
             stdIn = new BufferedReader(new InputStreamReader(System.in));
             String line = "";
             Gson gson = new Gson();
-            while (!line.equalsIgnoreCase("bye")) {
+            while (true) {
                 try {
                     log.info("SELECT ONE:");
 //                GET ROUTE
                     for (int i = 0; i < routes.size(); i++) {
                         System.out.format("%s: %s \n", i, routes.get(i));
                     }
-                    String route = routes.get(Integer.parseInt(stdIn.readLine()));
+
+                    String routeOpt = stdIn.readLine();
+                    if (routeOpt.equalsIgnoreCase("bye"))
+                        break;
+                    String route = routes.get(Integer.parseInt(routeOpt));
 //               GET MESSAGE
                     log.info("YOUR MESSAGE");
                     line = stdIn.readLine();
 //                HEADERS
                     String finalLine = line;
                     Map<String, String> headers = new HashMap<>() {{
-                        put("client_message", finalLine);
+                        put("mssv", finalLine);
                     }};
 //               REQUEST
                     HyperEntity request = new HyperEntity(
@@ -76,11 +82,7 @@ public class Client {
                     out.writeObject(requestJson);
                     String rawResponse = (String) in.readObject();
                     JsonObject response = gson.fromJson(rawResponse, JsonObject.class);
-                    try {
-                        System.out.format("Server response: \n%s\n\n", response.get("body").getAsString());
-                    } catch (Exception e) {
-                        System.out.format("Server response: \n%s\n\n", response.get("body"));
-                    }
+                    System.out.format("Server response: \n%s\n\n", response.get("body").getAsString());
                 } catch (NumberFormatException e) {
                     log.error("You must enter a number");
                 } catch (ArrayIndexOutOfBoundsException ignore) {

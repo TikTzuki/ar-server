@@ -33,13 +33,13 @@ public class EstimatingPiService {
             number = Long.valueOf(headers.get("client_message"));
         } catch (NumberFormatException e) {
             return HyperEntity.badRequest(
-                    new HyperException(HyperException.BAD_REQUEST, HyperStatus.BAD_REQUEST, null, "client_message must be digits")
+                    new HyperException(HyperException.BAD_REQUEST, null, "client_message must be digits")
             );
         }
         System.out.println(number);
         if (number == 0) {
             return HyperEntity.badRequest(
-                    new HyperException(HyperException.BAD_REQUEST, HyperStatus.BAD_REQUEST, null, "field required in headers: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, null, "field required in headers: client_message")
             );
         }
         String pi = estimatingPi(number);

@@ -10,7 +10,6 @@ import java.io.*;
 
 @SpringBootApplication
 public class Application implements ApplicationRunner {
-
     final Server server;
 
     public Application(Server server) {

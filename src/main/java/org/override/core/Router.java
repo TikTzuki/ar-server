@@ -7,6 +7,7 @@ import org.override.core.models.HyperEntity;
 import org.override.models.ExampleModel;
 import org.override.core.models.HyperRoute;
 import org.override.services.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -21,6 +22,11 @@ public class Router extends ClientSocketHandler {
     final PersonalInfoService personalInfoService;
     final SGUAcademicResult sguAcademicResult;
     final EvalService evalService;
+    @Autowired
+    TikService tikService;
+
+    @Autowired
+    TermResultService termResultService;
 
     public Router(EstimatingPiService estimatingPiService, DictionaryService dictionaryService, IPInfoService ipInfoService, PersonalInfoService personalInfoService, SGUAcademicResult sguAcademicResult, EvalService evalService) {
         this.estimatingPiService = estimatingPiService;
@@ -58,6 +64,8 @@ public class Router extends ClientSocketHandler {
                 case HyperRoute.GET_EXAMPLE_PERSONAL_INFO -> response = personalInfoService.handleLookupPersonalInfo(headers);
                 case HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT -> response = sguAcademicResult.handleLookupSGUAcademicResult(headers);
                 case HyperRoute.GET_EXAMPLE_EVAL -> response = evalService.handleEval(headers);
+                case HyperRoute.GET_EXAMPLE_TIKI_SERVICE -> response = tikService.handleCallTikiService(headers);
+                case HyperRoute.GET_TERM_RESULT -> response = termResultService.handleRequest(headers);
                 default -> {
                 }
             }

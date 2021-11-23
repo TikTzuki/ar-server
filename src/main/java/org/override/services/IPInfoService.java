@@ -33,7 +33,7 @@ public class IPInfoService {
         String clientMessage = headers.get("client_message");
         if (clientMessage == null) {
             return HyperEntity.badRequest(
-                    new HyperException(HyperException.BAD_REQUEST, HyperStatus.BAD_REQUEST, null, "field required in headers: client_message")
+                    new HyperException(HyperException.BAD_REQUEST, null, "field required in headers: client_message")
             );
         }
         String info = lookUpIpInfo(clientMessage);
