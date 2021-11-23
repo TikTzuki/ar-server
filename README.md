@@ -31,10 +31,16 @@ server response:
 server response exception:
 ```json
 {
+  "route": "GET_RESULT",
   "status": 400,
-  "code": "BAD_REQUEST",
-  "loc": "headers -> clientMessage",
-  "detail": "clientMessage must be number"
+  "headers": {
+    "key": "value"
+  },
+  "body": {
+    "code": "BAD_REQUEST",
+    "loc": "headers -> clientMessage",
+    "detail": "clientMessage must be number"
+  }
 }
 ```
 
