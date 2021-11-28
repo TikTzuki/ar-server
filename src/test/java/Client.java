@@ -73,6 +73,7 @@ public class Client {
                     String finalLine = line;
                     Map<String, String> headers = new HashMap<>() {{
                         put("mssv", finalLine);
+                        put("client_message", finalLine);
                     }};
 //               REQUEST
                     HyperEntity request = new HyperEntity(

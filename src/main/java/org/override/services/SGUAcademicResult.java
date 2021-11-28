@@ -2,6 +2,7 @@ package org.override.services;
 
 import com.google.gson.Gson;
 import lombok.extern.log4j.Log4j2;
+import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -20,7 +21,9 @@ import java.util.Map;
 @Service
 @Log4j2
 public class SGUAcademicResult {
-    public static final String URL = "http://thongtindaotao.sgu.edu.vn/Default.aspx?page=xemdiemthi&id=%s";
+    public static final String URL = "http://thongtindaotao.sgu.edu.vn/default.aspx?page=nhapmasv&flag=XemDiemThi";
+    String USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36";
+
     public static final String TERM = "Học kỳ 1 - Năm học 2019-2020";
     final Gson gson = new Gson();
 
@@ -38,8 +41,27 @@ public class SGUAcademicResult {
     private String lookupAcademicResult(String message) {
         StringBuilder result = new StringBuilder();
         try {
-            Document document = Jsoup.connect(String.format(URL, message)).get();
-            System.out.println(document);
+            Connection.Response response = Jsoup.connect(URL)
+                    .method(Connection.Method.GET)
+                    .execute();
+
+            Document currentPage = response.parse();
+
+            response = Jsoup.connect(URL)
+                    .data("__EVENTTARGET", "")
+                    .data("__EVENTARGUMENT", "")
+                    .data("__VIEWSTATE", currentPage.getElementById("__VIEWSTATE").val())
+                    .data("__VIEWSTATEGENERATOR", currentPage.getElementById("__VIEWSTATEGENERATOR").val())
+                    .data("ctl00$ContentPlaceHolder1$ctl00$txtMaSV", message)
+                    .data("ctl00$ContentPlaceHolder1$ctl00$btnOK", "OK")
+                    .userAgent(USER_AGENT)
+                    .timeout(0)
+                    .followRedirects(true)
+                    .cookies(response.cookies())
+                    .method(Connection.Method.POST)
+                    .execute();
+
+            Document document = response.parse();
             List<Element> tables = document.getElementsByClass("view-table");
             if (tables.size() == 0) {
                 return "NOT FOUND";
