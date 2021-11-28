@@ -10,6 +10,7 @@ import org.override.core.models.HyperStatus;
 import org.override.models.ExampleModel;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
+import org.override.models.TermResult;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class SGUAcademicResult {
             );
         }
         String info = lookupAcademicResult(clientMessage);
+
         return HyperEntity.ok(new ExampleModel(info));
     }
 
@@ -65,7 +67,9 @@ public class SGUAcademicResult {
                                         cols.get(9).text()
                                 )
                         );
+
                     }
+
                     break;
                 }
             }
