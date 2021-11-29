@@ -36,7 +36,8 @@ public class Client {
     BufferedReader stdIn = null;
     List<String> routes = List.of(
             HyperRoute.LOGIN,
-            HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT
+            HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT,
+            HyperRoute.GET_LEARNING_PROCESS
     );
 
     public Client(String address, int port) throws ClassNotFoundException {
@@ -68,6 +69,7 @@ public class Client {
                     Map<String, String> headers = new HashMap<>() {{
                         put("mssv", finalLine);
                         put("client_message", finalLine);
+                        put("studentId", finalLine);
                     }};
 //               REQUEST
                     HyperEntity request;

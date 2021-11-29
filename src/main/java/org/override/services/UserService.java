@@ -74,16 +74,14 @@ public class UserService {
             Optional<UserModel> userOpt = userRepository.findOne(example);
             if (userOpt.isPresent()) {
                 UserModel user = userOpt.get();
-                String key = SecurityUtil.generateKey(user.getPassword(), user.getPublicKey());
-                System.out.println(key);
                 return HyperEntity.ok(
-                        new AuthenticationModel.AuthenticationSuccess(key)
+                        new AuthenticationModel.AuthenticationSuccess(user.getPublicKey())
                 );
             } else
                 return HyperEntity.notFound(
                         new HyperException(HyperException.NOT_FOUND, "body -> email", "email or password invalid")
                 );
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | JsonSyntaxException e) {
+        } catch (JsonSyntaxException e) {
             e.printStackTrace();
         }
         return HyperEntity.unprocessableEntity(
@@ -114,7 +112,7 @@ public class UserService {
         if (userOpt.isPresent()) {
             try {
                 UserModel user = userOpt.get();
-                String key = SecurityUtil.generateKey(user.getPassword(), user.getPublicKey());
+                String key = SecurityUtil.generateKey(user.getPublicKey(), user.getEmail());
                 hyperEntity.body = SecurityUtil.decrypt(
                         hyperEntity.body,
                         key,
@@ -141,7 +139,7 @@ public class UserService {
         String ivString = authorizations[1];
         Integer userId = Integer.parseInt(userIdString);
         UserModel user = userRepository.findById(userId).get();
-        String key = SecurityUtil.generateKey(user.getPassword(), user.getPublicKey());
+        String key = SecurityUtil.generateKey(user.getPublicKey(), user.getEmail());
         response.body = SecurityUtil.encrypt(
                 response.body,
                 key,

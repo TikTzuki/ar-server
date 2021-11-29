@@ -4,12 +4,11 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.log4j.Log4j2;
 import org.override.core.models.HyperEntity;
-import org.override.core.models.HyperStatus;
-import org.override.models.ExampleModel;
 import org.override.core.models.HyperRoute;
-import org.override.services.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import org.override.core.models.HyperStatus;
+import org.override.services.LearningProcessService;
+import org.override.services.SGUAcademicResult;
+import org.override.services.UserService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.BadPaddingException;
@@ -27,10 +26,12 @@ import java.util.Map;
 public class Router extends ClientSocketHandler {
     final SGUAcademicResult sguAcademicResult;
     final UserService userService;
+    final LearningProcessService learningProcessService;
 
-    public Router(SGUAcademicResult sguAcademicResult, UserService userService) {
+    public Router(SGUAcademicResult sguAcademicResult, UserService userService, LearningProcessService learningProcessService) {
         this.sguAcademicResult = sguAcademicResult;
         this.userService = userService;
+        this.learningProcessService = learningProcessService;
     }
 
     @Override
@@ -57,6 +58,7 @@ public class Router extends ClientSocketHandler {
             Map<String, String> headers = request.headers;
             switch (request.route) {
                 case HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT -> response = sguAcademicResult.handleLookupSGUAcademicResult(headers);
+                case HyperRoute.GET_LEARNING_PROCESS ->  response = learningProcessService.handleGetLearningProcess(headers);
                 case HyperRoute.LOGIN -> response = userService.handleLogin(request);
                 default -> {
                 }
