@@ -20,6 +20,7 @@ import java.net.UnknownHostException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +30,9 @@ import java.util.Map;
 @Log4j2
 @NoArgsConstructor
 public class Client {
-    static String keyString = "CC5i89cNrJdFlyBp2Uln5Q\u003d\u003d";
+    static String keyString = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCHxPdpxAtQxapqTFHorahKCkvNT9Y59gmISh+3SfphMkOkoo7Y53i8vtEG5LAiwI15Y7mDgeFnYlBpTamXc3oZ9nR4xSQ8kTf1x2bHfMi5pdITvy8SWxIya9axFEzNi26AZkyC0WyCjm/+8z5MGqZSimrAliwQrnaNbSNcaYxZLQIDAQAB";
+    static String email = "string";
+
     private Socket socket = null;
     ObjectOutputStream out = null;
     ObjectInputStream in = null;
@@ -86,7 +89,7 @@ public class Client {
                                 route,
                                 SecurityUtil.encrypt(
                                         new ExampleModel("example model").toJson(),
-                                        keyString,
+                                        SecurityUtil.generateKey(keyString, email),
                                         ivString
                                 ),
                                 headers, null
@@ -100,7 +103,7 @@ public class Client {
                 } catch (NumberFormatException e) {
                     log.error("You must enter a number");
                 } catch (ArrayIndexOutOfBoundsException ignore) {
-                } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
                     e.printStackTrace();
                 }
             }
