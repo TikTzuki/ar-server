@@ -85,10 +85,14 @@ public class TermResultService {
             Connection.Response response = Jsoup.connect(urlLogin)
                     .method(Connection.Method.GET)
                     .execute();
+
             Document loginPage = response.parse();
+
             response = Jsoup.connect(urlLogin)
-                    .data("__EVENTTARGET", "").data("__EVENTARGUMENT", "")
-                    .data("__VIEWSTATE", "").data("__VIEWSTATEGENERATOR", "")
+                    .data("__EVENTTARGET", "")
+                    .data("__EVENTARGUMENT", "")
+                    .data("__VIEWSTATE", "")
+                    .data("__VIEWSTATEGENERATOR", "")
                     .data("ctl00$ContentPlaceHolder1$ctl00$txtMaSV", mssv)
                     .data("ctl00$ContentPlaceHolder1$ctl00$btnOK", "OK")
                     .userAgent(userAgent)
@@ -97,12 +101,14 @@ public class TermResultService {
                     .cookies(response.cookies())
                     .method(Connection.Method.GET)
                     .execute();
-            loginPage = response.parse();
-            String name = loginPage.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblTenSinhVien").text();
-            String gender = loginPage.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblPhai").text();
-            String placeOfBirth = loginPage.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblNoiSinh").text();
-            String Class = loginPage.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblLop").text();
-            String majors = loginPage.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lbNganh").text();
+
+            Document document = response.parse();
+
+            String name = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblTenSinhVien").text();
+            String gender = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblPhai").text();
+            String placeOfBirth = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblNoiSinh").text();
+            String Class = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblLop").text();
+            String majors = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lbNganh").text();
 
 
 //            String s = String.format("%s | %s | %s | %s | %s | %s \n", name, getNgsinh(mssv), gender, placeOfBirth, Class, majors);

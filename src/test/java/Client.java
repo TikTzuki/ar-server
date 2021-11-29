@@ -40,7 +40,8 @@ public class Client {
     List<String> routes = List.of(
             HyperRoute.LOGIN,
             HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT,
-            HyperRoute.GET_LEARNING_PROCESS
+            HyperRoute.GET_LEARNING_PROCESS,
+            HyperRoute.GET_TERM_RESULT
     );
 
     public Client(String address, int port) throws ClassNotFoundException {
@@ -76,6 +77,7 @@ public class Client {
                     }};
 //               REQUEST
                     HyperEntity request;
+                    String ivString = SecurityUtil.generateIv();
                     if (HyperRoute.LOGIN.equals(route))
                         request = new HyperEntity(
                                 route,
@@ -83,7 +85,6 @@ public class Client {
                                 headers, null
                         );
                     else {
-                        String ivString = SecurityUtil.generateIv();
                         headers.put("Authorization", "4:%s".formatted(ivString));
                         request = new HyperEntity(
                                 route,
@@ -98,13 +99,15 @@ public class Client {
                     String requestJson = gson.toJson(request);
                     out.writeObject(requestJson);
                     String rawResponse = (String) in.readObject();
-                    JsonObject response = gson.fromJson(rawResponse, JsonObject.class);
-                    System.out.format("Server response: \n%s\n\n", response.get("body").getAsString());
-                } catch (NumberFormatException e) {
-                    log.error("You must enter a number");
-                } catch (ArrayIndexOutOfBoundsException ignore) {
-                } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException | InvalidKeySpecException e) {
-                    e.printStackTrace();
+                    HyperEntity response = gson.fromJson(rawResponse, HyperEntity.class);
+                    String body = SecurityUtil.decrypt(
+                            response.body,
+                            SecurityUtil.generateKey(keyString, email),
+                            ivString
+                    );
+                    System.out.format("Server response: \n%s\n\n", body);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
                 }
             }
             in.close();
@@ -115,9 +118,6 @@ public class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public void sendRequest(HyperEntity data) throws ClassNotFoundException {
     }
 
     public static void main(String[] args) throws Exception {
