@@ -32,15 +32,16 @@ public class TermResultService {
      */
     public static final String urlLogin = "http://thongtindaotao.sgu.edu.vn/default.aspx?page=nhapmasv&flag=XemDiemThi";
     public static final String userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36";
+    public static final String STUDENT_ID = "studentId";
 
     public HyperEntity handleRequest(Map<String, String> headers) {
-        String mssv = headers.get("mssv");
+        String mssv = headers.get(STUDENT_ID);
         if (mssv == null) {
             return HyperEntity.badRequest(
                     new HyperException(
                             HyperException.BAD_REQUEST,
                             "headers -> mssv",
-                            "detail mssv at headers is required"
+                            "detail studentId at headers is required"
                     )
             );
         }
@@ -76,7 +77,7 @@ public class TermResultService {
     }
 
     public TermResult termR(String mssv) {
-        TermResult termResult= new TermResult();
+        TermResult termResult = new TermResult();
         TermResult.TermResultItem termResultItem = new TermResult.TermResultItem();
         List<TermResult.TermResultItem> ListTermResultItems = new ArrayList<>();
         StringBuilder result = new StringBuilder();
@@ -133,7 +134,7 @@ public class TermResultService {
                     break;
                 }
 
-                for (int i = 0; i < term.size()-1; i++) {
+                for (int i = 0; i < term.size() - 1; i++) {
                     System.out.println(term.get(i));
                     String[] parts = term.get(i).split("-");
                     termResultItem.setTerm(Integer.parseInt(parts[0].replaceAll("[^0-9,-\\.]", "")));
@@ -204,11 +205,11 @@ public class TermResultService {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return  termScoreItem;
+        return termScoreItem;
     }
 
     private TermScoreSummary GettermScoreSummary(String mssv, String term) {
-        TermScoreSummary termScoreSummary=new TermScoreSummary();
+        TermScoreSummary termScoreSummary = new TermScoreSummary();
 
         return termScoreSummary;
     }

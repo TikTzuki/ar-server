@@ -7,7 +7,7 @@ import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperRoute;
 import org.override.core.models.HyperStatus;
 import org.override.services.LearningProcessService;
-import org.override.services.SGUAcademicResult;
+import org.override.services.TermResultService;
 import org.override.services.UserService;
 import org.springframework.stereotype.Component;
 
@@ -24,14 +24,14 @@ import java.util.Map;
 @Component
 @Log4j2
 public class Router extends ClientSocketHandler {
-    final SGUAcademicResult sguAcademicResult;
     final UserService userService;
     final LearningProcessService learningProcessService;
+    final TermResultService termResultService;
 
-    public Router(SGUAcademicResult sguAcademicResult, UserService userService, LearningProcessService learningProcessService) {
-        this.sguAcademicResult = sguAcademicResult;
+    public Router(UserService userService, LearningProcessService learningProcessService, TermResultService termResultService) {
         this.userService = userService;
         this.learningProcessService = learningProcessService;
+        this.termResultService = termResultService;
     }
 
     @Override
@@ -57,8 +57,8 @@ public class Router extends ClientSocketHandler {
 
             Map<String, String> headers = request.headers;
             switch (request.route) {
-                case HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT -> response = sguAcademicResult.handleLookupSGUAcademicResult(headers);
-                case HyperRoute.GET_LEARNING_PROCESS ->  response = learningProcessService.handleGetLearningProcess(headers);
+                case HyperRoute.GET_TERM_RESULT -> response = termResultService.handleRequest(headers);
+                case HyperRoute.GET_LEARNING_PROCESS -> response = learningProcessService.handleGetLearningProcess(headers);
                 case HyperRoute.LOGIN -> response = userService.handleLogin(request);
                 default -> {
                 }
