@@ -18,4 +18,6 @@ public class HyperRoute {
     public static final String GET_EXAMPLE_TIKI_SERVICE = "GET_TIKI";
 
     public static final String GET_TERM_RESULT = "GET_TERM_RESULT";
+
+    public static final String LOGIN = "LOGIN";
 }

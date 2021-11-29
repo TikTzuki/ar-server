@@ -2,10 +2,17 @@ package org.override.core;
 
 import lombok.extern.log4j.Log4j2;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 @Log4j2
 public abstract class ClientSocketHandler implements Runnable {
@@ -13,7 +20,7 @@ public abstract class ClientSocketHandler implements Runnable {
     protected ObjectOutputStream out;
     protected ObjectInputStream in;
 
-    public abstract void handleRequest() throws IOException, ClassNotFoundException;
+    public abstract void handleRequest() throws IOException, ClassNotFoundException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, InvalidKeyException;
 
     @Override
     public void run() {
@@ -22,7 +29,7 @@ public abstract class ClientSocketHandler implements Runnable {
             out = new ObjectOutputStream(clientSocket.getOutputStream());
             in = new ObjectInputStream(clientSocket.getInputStream());
             this.handleRequest();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException | InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeySpecException | InvalidKeyException e) {
             e.printStackTrace();
         } finally {
             closeClientSocket();

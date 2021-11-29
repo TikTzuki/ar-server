@@ -3,15 +3,23 @@ import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.override.models.AuthenticationModel;
 import org.override.models.ExampleModel;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperRoute;
+import org.override.utils.SecurityUtil;
 
-import javax.script.*;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,28 +29,14 @@ import java.util.Map;
 @Log4j2
 @NoArgsConstructor
 public class Client {
-    private static Client INSTANCE;
-
-    public static Client getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new Client();
-        }
-        return INSTANCE;
-    }
-
+    static String keyString = "CC5i89cNrJdFlyBp2Uln5Q\u003d\u003d";
     private Socket socket = null;
     ObjectOutputStream out = null;
     ObjectInputStream in = null;
     BufferedReader stdIn = null;
     List<String> routes = List.of(
-            HyperRoute.GET_EXAMPLE_DICTIONARY,
-            HyperRoute.GET_EXAMPLE_LOOK_IP_INFO,
-            HyperRoute.GET_EXAMPLE_ESTIMATING_PI,
-            HyperRoute.GET_EXAMPLE_PERSONAL_INFO,
-            HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT,
-            HyperRoute.GET_EXAMPLE_EVAL,
-            HyperRoute.GET_EXAMPLE_TIKI_SERVICE,
-            HyperRoute.GET_TERM_RESULT
+            HyperRoute.LOGIN,
+            HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT
     );
 
     public Client(String address, int port) throws ClassNotFoundException {
@@ -76,9 +70,26 @@ public class Client {
                         put("client_message", finalLine);
                     }};
 //               REQUEST
-                    HyperEntity request = new HyperEntity(
-                            route, gson.toJson(new ExampleModel("tiktzuki")), headers, null
-                    );
+                    HyperEntity request;
+                    if (HyperRoute.LOGIN.equals(route))
+                        request = new HyperEntity(
+                                route,
+                                gson.toJson(new AuthenticationModel("string", "string")),
+                                headers, null
+                        );
+                    else {
+                        String ivString = SecurityUtil.generateIv();
+                        headers.put("Authorization", "4:%s".formatted(ivString));
+                        request = new HyperEntity(
+                                route,
+                                SecurityUtil.encrypt(
+                                        new ExampleModel("example model").toJson(),
+                                        keyString,
+                                        ivString
+                                ),
+                                headers, null
+                        );
+                    }
                     String requestJson = gson.toJson(request);
                     out.writeObject(requestJson);
                     String rawResponse = (String) in.readObject();
@@ -87,6 +98,8 @@ public class Client {
                 } catch (NumberFormatException e) {
                     log.error("You must enter a number");
                 } catch (ArrayIndexOutOfBoundsException ignore) {
+                } catch (InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeyException e) {
+                    e.printStackTrace();
                 }
             }
             in.close();
@@ -102,8 +115,7 @@ public class Client {
     public void sendRequest(HyperEntity data) throws ClassNotFoundException {
     }
 
-    public static void main(String[] args) throws ClassNotFoundException, ScriptException {
+    public static void main(String[] args) throws Exception {
         new Client("localhost", 8000);
-
     }
 }

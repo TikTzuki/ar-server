@@ -22,6 +22,11 @@ public class Application implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        server.launch();
+        try {
+            server.launch();
+        } catch (Exception e) {
+            e.printStackTrace();
+            run(args);
+        }
     }
 }

@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreditModels implements HyperBody {
+public class CreditModel implements HyperBody {
     @Id
     public String subjectId;
     public String subjectName;

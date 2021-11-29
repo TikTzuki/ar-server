@@ -4,41 +4,37 @@ import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
 import lombok.extern.log4j.Log4j2;
 import org.override.core.models.HyperEntity;
+import org.override.core.models.HyperStatus;
 import org.override.models.ExampleModel;
 import org.override.core.models.HyperRoute;
 import org.override.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Map;
 
 @Component
 @Log4j2
 public class Router extends ClientSocketHandler {
-    final EstimatingPiService estimatingPiService;
-    final DictionaryService dictionaryService;
-    final IPInfoService ipInfoService;
-    final PersonalInfoService personalInfoService;
     final SGUAcademicResult sguAcademicResult;
-    final EvalService evalService;
-    @Autowired
-    TikService tikService;
+    final UserService userService;
 
-    @Autowired
-    TermResultService termResultService;
-
-    public Router(EstimatingPiService estimatingPiService, DictionaryService dictionaryService, IPInfoService ipInfoService, PersonalInfoService personalInfoService, SGUAcademicResult sguAcademicResult, EvalService evalService) {
-        this.estimatingPiService = estimatingPiService;
-        this.dictionaryService = dictionaryService;
-        this.ipInfoService = ipInfoService;
-        this.personalInfoService = personalInfoService;
+    public Router(SGUAcademicResult sguAcademicResult, UserService userService) {
         this.sguAcademicResult = sguAcademicResult;
-        this.evalService = evalService;
+        this.userService = userService;
     }
 
     @Override
-    public void handleRequest() throws IOException, ClassNotFoundException {
+    public void handleRequest() throws IOException, ClassNotFoundException, InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeySpecException, InvalidKeyException {
         String rawRequest;
         HyperEntity response = HyperEntity.notFound(null);
         Gson gson = new Gson();
@@ -46,7 +42,12 @@ public class Router extends ClientSocketHandler {
         while ((rawRequest = (String) in.readObject()) != null) {
             log.info(rawRequest);
             try {
-                request = gson.fromJson(rawRequest, HyperEntity.class);
+                request = userService.auth(gson.fromJson(rawRequest, HyperEntity.class));
+                if (HyperStatus.UNAUTHORIZED.equals(request.status)) {
+                    out.writeObject(gson.toJson(request));
+                    out.flush();
+                    continue;
+                }
             } catch (JsonSyntaxException ignore) {
                 out.writeObject(gson.toJson(response));
                 out.flush();
@@ -55,22 +56,13 @@ public class Router extends ClientSocketHandler {
 
             Map<String, String> headers = request.headers;
             switch (request.route) {
-                case HyperRoute.GET_EXAMPLE_ESTIMATING_PI -> {
-                    ExampleModel ex = gson.fromJson(request.body, ExampleModel.class);
-                    response = estimatingPiService.handleEstimatingPi(headers, ex);
-                }
-                case HyperRoute.GET_EXAMPLE_DICTIONARY -> response = dictionaryService.handleLookUpDictionary(headers);
-                case HyperRoute.GET_EXAMPLE_LOOK_IP_INFO -> response = ipInfoService.handleLookupIpInfo(headers);
-                case HyperRoute.GET_EXAMPLE_PERSONAL_INFO -> response = personalInfoService.handleLookupPersonalInfo(headers);
                 case HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT -> response = sguAcademicResult.handleLookupSGUAcademicResult(headers);
-                case HyperRoute.GET_EXAMPLE_EVAL -> response = evalService.handleEval(headers);
-                case HyperRoute.GET_EXAMPLE_TIKI_SERVICE -> response = tikService.handleCallTikiService(headers);
-                case HyperRoute.GET_TERM_RESULT -> response = termResultService.handleRequest(headers);
+                case HyperRoute.LOGIN -> response = userService.handleLogin(request);
                 default -> {
                 }
             }
 
-            out.writeObject(gson.toJson(response));
+            out.writeObject(gson.toJson(userService.encryptResponse(request, response)));
             out.flush();
         }
     }

@@ -1,6 +1,7 @@
 package org.override.core.models;
 
 import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Map;
  * <p>status: mã của thông điệp, dự vào mã mà rẽ nhánh xử lý. Tương tự như http status code.
  */
 @AllArgsConstructor
+@NoArgsConstructor
 public class HyperEntity implements Serializable {
     public String route;
     public String body;
