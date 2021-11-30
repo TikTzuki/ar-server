@@ -1,26 +1,18 @@
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.override.models.AuthenticationModel;
-import org.override.models.ExampleModel;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperRoute;
+import org.override.core.models.HyperStatus;
+import org.override.models.AuthenticationModel;
+import org.override.models.ExampleModel;
 import org.override.utils.SecurityUtil;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +22,14 @@ import java.util.Map;
 @Log4j2
 @NoArgsConstructor
 public class Client {
-    static String keyString = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCHxPdpxAtQxapqTFHorahKCkvNT9Y59gmISh+3SfphMkOkoo7Y53i8vtEG5LAiwI15Y7mDgeFnYlBpTamXc3oZ9nR4xSQ8kTf1x2bHfMi5pdITvy8SWxIya9axFEzNi26AZkyC0WyCjm/+8z5MGqZSimrAliwQrnaNbSNcaYxZLQIDAQAB";
+    static String STUDENT_ID = "studentId";
+    static String INCLUDE_COURSE = "course";
+    static String INCLUDE_SUBJECT = "includeSubject";
+    static String INCLUDE_SPECIALITY = "includeSpeciality";
+
+    static String keyString = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC1d9DD+ZvVVNzBpZD915fR6wuX4H1fFcsG306OtpJy/r9cr7zaSb7Vh2gY88m1SzBi0tURRg/C6nY0O0cJEUc1MvXeNSDaAPLrJpthK5O8yImYap+3ipCHB6zwZcAjWQwba6JBQhVd0qffytmsTEvalVHsM/R9fn96URd6XCjbCQIDAQAB";
     static String email = "string";
+    public String USER_ID = "1";
 
     private Socket socket = null;
     ObjectOutputStream out = null;
@@ -41,7 +39,8 @@ public class Client {
             HyperRoute.LOGIN,
             HyperRoute.GET_EXAMPLE_SGU_ACADEMIC_RESULT,
             HyperRoute.GET_LEARNING_PROCESS,
-            HyperRoute.GET_TERM_RESULT
+            HyperRoute.GET_TERM_RESULT,
+            HyperRoute.GET_RANKING
     );
 
     public Client(String address, int port) throws ClassNotFoundException {
@@ -71,9 +70,9 @@ public class Client {
 //                HEADERS
                     String finalLine = line;
                     Map<String, String> headers = new HashMap<>() {{
-                        put("mssv", finalLine);
                         put("client_message", finalLine);
-                        put("studentId", finalLine);
+                        put(STUDENT_ID, finalLine);
+                        put(INCLUDE_SUBJECT, "TRUE");
                     }};
 //               REQUEST
                     HyperEntity request;
@@ -85,7 +84,7 @@ public class Client {
                                 headers, null
                         );
                     else {
-                        headers.put("Authorization", "4:%s".formatted(ivString));
+                        headers.put("Authorization", "%s:%s".formatted(USER_ID, ivString));
                         request = new HyperEntity(
                                 route,
                                 SecurityUtil.encrypt(
@@ -100,11 +99,13 @@ public class Client {
                     out.writeObject(requestJson);
                     String rawResponse = (String) in.readObject();
                     HyperEntity response = gson.fromJson(rawResponse, HyperEntity.class);
-                    String body = SecurityUtil.decrypt(
-                            response.body,
-                            SecurityUtil.generateKey(keyString, email),
-                            ivString
-                    );
+                    String body = response.body;
+                    if (!request.route.equals(HyperRoute.LOGIN) && response.status.equals(HyperStatus.OK))
+                        body = SecurityUtil.decrypt(
+                                response.body,
+                                SecurityUtil.generateKey(keyString, email),
+                                ivString
+                        );
                     System.out.format("Server response: \n%s\n\n", body);
                 } catch (Exception e) {
                     log.error(e.getMessage());

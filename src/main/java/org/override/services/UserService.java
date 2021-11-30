@@ -7,6 +7,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
 import org.override.core.models.HyperRoute;
+import org.override.core.models.HyperStatus;
 import org.override.models.AuthenticationModel;
 import org.override.models.UserModel;
 import org.override.repositories.UserRepository;
@@ -132,7 +133,7 @@ public class UserService {
     }
 
     public HyperEntity encryptResponse(HyperEntity request, HyperEntity response) throws InvalidAlgorithmParameterException, NoSuchPaddingException, IllegalBlockSizeException, NoSuchAlgorithmException, BadPaddingException, InvalidKeyException, InvalidKeySpecException {
-        if (request.route.equals(HyperRoute.LOGIN))
+        if (request.route.equals(HyperRoute.LOGIN) || !response.status.equals(HyperStatus.OK))
             return response;
         String[] authorizations = request.headers.get("Authorization").split(":");
         String userIdString = authorizations[0];

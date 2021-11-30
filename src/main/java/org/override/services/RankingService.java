@@ -1,6 +1,5 @@
 package org.override.services;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import lombok.Data;
 import lombok.NonNull;
@@ -16,16 +15,14 @@ import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @Log4j2
 @RequiredArgsConstructor
 @Data
 public class RankingService {
-    static String STUDENT_ID = "studentID";
+    static String STUDENT_ID = "studentId";
     static String INCLUDE_COURSE = "course";
     static String INCLUDE_SUBJECT = "includeSubject";
     static String INCLUDE_SPECIALITY = "includeSpeciality";
@@ -38,7 +35,14 @@ public class RankingService {
         boolean includeCourse = headers.get(INCLUDE_COURSE) != null && Boolean.parseBoolean(headers.get(INCLUDE_COURSE));
         boolean includeSubject = headers.get(INCLUDE_SUBJECT) != null && Boolean.parseBoolean(headers.get(INCLUDE_SUBJECT));
         boolean includeSpeciality = headers.get(INCLUDE_SPECIALITY) != null && Boolean.parseBoolean(headers.get(INCLUDE_SPECIALITY));
-        if (!(includeCourse && includeSubject && includeSpeciality))
+        if (studentId == null) {
+            return HyperEntity.badRequest(new HyperException(
+                    HyperException.BAD_REQUEST,
+                    "headers -> %s".formatted(STUDENT_ID),
+                    "%s is required".formatted(STUDENT_ID)
+            ));
+        }
+        if (!(includeCourse || includeSubject || includeSpeciality))
             return HyperEntity.badRequest(new HyperException(
                     HyperException.BAD_REQUEST,
                     "headers -> include*",
@@ -46,12 +50,31 @@ public class RankingService {
             ));
         Optional<StudentModel> studentOpt = studentRepository.findById(studentId);
         if (studentOpt.isPresent()) {
-            List<StudentModel> students = studentRepository.findNearlyScore(
-                    5,
-                    PageRequest.of(0, 3, Sort.by("avgScore").descending())
+            StudentModel student = studentOpt.get();
+            Integer course = includeCourse ? student.course : null;
+            String speciality = includeSpeciality ? student.speciality : null;
+            String subject = includeSubject ? student.subject : null;
+
+            List<StudentModel> studentLessThan = studentRepository.findNearlyLessThanAvgScore(
+                    student.avgScore,
+                    course,
+                    speciality,
+                    subject,
+                    PageRequest.of(0, 5, Sort.by("avgScore").descending())
             );
-            log.info(students);
-            return HyperEntity.ok(new PagingModel<>(students));
+            List<StudentModel> studentGreaterThan = studentRepository.findNearlyGreaterThanAvgScore(
+                    student.avgScore,
+                    course,
+                    speciality,
+                    subject,
+                    PageRequest.of(0, 5, Sort.by("avgScore").ascending())
+            );
+
+            studentLessThan.sort((o1, o2) -> (int) (o1.avgScore - o2.avgScore));
+            studentLessThan.add(student);
+            studentLessThan.addAll(studentGreaterThan);
+
+            return HyperEntity.ok(new PagingModel<>(studentLessThan));
         } else {
             return HyperEntity.badRequest(new HyperException(
                     HyperException.BAD_REQUEST,
