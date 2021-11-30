@@ -10,5 +10,7 @@ public class HyperRoute {
 
     public static final String GET_LEARNING_PROCESS = "GET_LEARNING_PROCESS";
 
+    public static final String GET_RANKING = "GET_RANKING";
+
     public static final String LOGIN = "LOGIN";
 }
