@@ -75,9 +75,9 @@ public class UserService {
             Optional<UserModel> userOpt = userRepository.findOne(example);
             if (userOpt.isPresent()) {
                 UserModel user = userOpt.get();
-                return HyperEntity.ok(
-                        new AuthenticationModel.AuthenticationSuccess(user.getPublicKey())
-                );
+                user.setPassword("");
+                user.setSecrectKey("");
+                return HyperEntity.ok(user);
             } else
                 return HyperEntity.notFound(
                         new HyperException(HyperException.NOT_FOUND, "body -> email", "email or password invalid")

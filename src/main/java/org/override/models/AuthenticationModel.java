@@ -24,18 +24,6 @@ public class AuthenticationModel implements HyperBody {
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class AuthenticationSuccess implements HyperBody {
-        public String key;
-
-        @Override
-        public String toJson() {
-            return gson.toJson(this);
-        }
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
     public static class UserCreate implements HyperBody {
         public String password;
         public String email;
