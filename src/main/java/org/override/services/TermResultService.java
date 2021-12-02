@@ -54,38 +54,17 @@ public class TermResultService {
         return HyperEntity.ok(termResult);
     }
 
-    public String getNgsinh(String ms) {
-        StringBuilder result = new StringBuilder();
-        String url = "http://thongtindaotao.sgu.edu.vn/Default.aspx?page=thoikhoabieu&sta=1&id=";
-        try {
-            Connection.Response response = Jsoup.connect(url + ms)
-                    .ignoreContentType(true)
-                    .method(Connection.Method.GET).execute();
-            Document document = response.parse();
-            String name_dateOfBirth = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_lblContentTenSV").text();
-
-            String[] parts = name_dateOfBirth.split(":");
-            String date = parts[1];
-            log.info(date);
-
-            result.append(date);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return result.toString();
-
-    }
-
     public TermResult termR(String mssv) {
         TermResult termResult = new TermResult();
         TermResult.TermResultItem termResultItem = new TermResult.TermResultItem();
         List<TermResult.TermResultItem> ListTermResultItems = new ArrayList<>();
+        List<TermScoreItem> ListTermScoreItems = new ArrayList<>();
+
         StringBuilder result = new StringBuilder();
         try {
             Connection.Response response = Jsoup.connect(urlLogin)
                     .method(Connection.Method.GET)
                     .execute();
-
             Document loginPage = response.parse();
 
             response = Jsoup.connect(urlLogin)
@@ -110,11 +89,6 @@ public class TermResultService {
             String Class = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblLop").text();
             String majors = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lbNganh").text();
 
-
-//            String s = String.format("%s | %s | %s | %s | %s | %s \n", name, getNgsinh(mssv), gender, placeOfBirth, Class, majors);
-//            result.append(s);
-//            System.out.println(s);
-
             StudentSummary studentSummary = new StudentSummary();
             studentSummary.setId(mssv);
             studentSummary.setName(name);
@@ -124,11 +98,16 @@ public class TermResultService {
             studentSummary.setClasses(Class);
             studentSummary.setSubject(majors);
 
-            List<TermScoreItem> ListTermScoreItems = new ArrayList<>();
-            TermScoreItem termScoreItem = new TermScoreItem();
-
 
             List<Element> tables = loginPage.getElementsByClass("view-table");
+            if (tables.size() == 0) {
+                HyperEntity.badRequest(
+                        new HyperException(
+                                HyperException.BAD_REQUEST,
+                                "headers -> mssv",
+                                "detail studentId at headers is required"
+                        ));
+            }
             Element table = tables.get(0);
             Elements rows = table.select("tr");
             Iterator<Element> itr = rows.iterator();
@@ -145,15 +124,43 @@ public class TermResultService {
                     String[] parts = term.get(i).split("-");
                     termResultItem.setTerm(Integer.parseInt(parts[0].replaceAll("[^0-9,-\\.]", "")));
                     termResultItem.setYear(parts[1].replaceAll("[^0-9,-\\.]", ""));
-                    ListTermScoreItems.add(GettermScoreItem(mssv, term.get(i)));
 
+                    ListTermScoreItems.add(GettermScoreItem(mssv, term.get(i)));
+                    termResultItem.setTermScoreItems(ListTermScoreItems);
+
+                    termResultItem.setTermScoreSummary(GetTermScoreSummary(mssv, term.get(term.size())));
+
+                    ListTermResultItems.add(termResultItem);
                 }
             }
-
         } catch (IOException e) {
             err.println(e);
         }
+        termResult.setStudentSummary(termResult.studentSummary);
+        termResult.setTermResultItems(ListTermResultItems);
         return termResult;
+    }
+
+    public String getNgsinh(String ms) {
+        StringBuilder result = new StringBuilder();
+        String url = "http://thongtindaotao.sgu.edu.vn/Default.aspx?page=thoikhoabieu&sta=1&id=";
+        try {
+            Connection.Response response = Jsoup.connect(url + ms)
+                    .ignoreContentType(true)
+                    .method(Connection.Method.GET).execute();
+            Document document = response.parse();
+            String name_dateOfBirth = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_lblContentTenSV").text();
+
+            String[] parts = name_dateOfBirth.split(":");
+            String date = parts[1];
+            log.info(date);
+
+            result.append(date);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return result.toString();
+
     }
 
     private TermScoreItem GettermScoreItem(String message, String term) {
@@ -176,6 +183,7 @@ public class TermResultService {
                         if (currentRow.classNames().contains("row-diemTK") ||
                                 !currentRow.classNames().contains("row-diem") &&
                                         !currentRow.classNames().contains("row-diemTK")) {
+                            termScoreItem=null;
                             break;
                         } else {
 
@@ -214,9 +222,65 @@ public class TermResultService {
         return termScoreItem;
     }
 
-    private TermScoreSummary GettermScoreSummary(String mssv, String term) {
+    private TermScoreSummary GetTermScoreSummary(String mssv, String term) {
         TermScoreSummary termScoreSummary = new TermScoreSummary();
+        try {
+            Connection.Response response = Jsoup.connect(urlLogin)
+                    .method(Connection.Method.GET)
+                    .execute();
+            Document loginPage = response.parse();
+            response = Jsoup.connect(urlLogin)
+                    .data("__EVENTTARGET", "").data("__EVENTARGUMENT", "")
+                    .data("__VIEWSTATE", "").data("__VIEWSTATEGENERATOR", "")
+                    .data("ctl00$ContentPlaceHolder1$ctl00$txtMaSV", mssv)
+                    .data("ctl00$ContentPlaceHolder1$ctl00$btnOK", "OK")
+                    .userAgent(userAgent)
+                    .timeout(0)
+                    .followRedirects(true)
+                    .cookies(response.cookies())
+                    .method(Connection.Method.GET)
+                    .execute();
+            Document document = response.parse();
 
+            List<Element> tables = document.getElementsByClass("view-table");
+
+            Element table = tables.get(0);
+            Elements rows = table.select("tr");
+            Iterator<Element> itr = rows.iterator();
+            while (itr.hasNext()) {
+                Element row = itr.next();
+                if (row.text().equals(term)){
+                    Element currentRow;
+                    while ((currentRow = itr.next()) != null) {
+                        Elements cols = currentRow.select("td");
+                        if (currentRow.classNames().contains("row-diemTK")) {
+                            //   result.append(cols.get(0).text() + "|");
+                            if (cols.get(0).text().contains("Điểm trung bình học kỳ hệ 10/100:")) {
+                                termScoreSummary.setAvgTermScore(Double.parseDouble(cols.get(0).text()));
+                            }
+                            if (cols.get(0).text().contains("Điểm trung bình học kỳ hệ 4:")) {
+                               termScoreSummary.setAvgGPATermScore(Double.parseDouble(cols.get(0).text()));
+                            }
+                            if (cols.get(0).text().contains("Điểm trung bình tích lũy:")) {
+                              termScoreSummary.setAvgScore(Double.parseDouble(cols.get(0).text()));
+                            }
+                            if (cols.get(0).text().contains("Điểm trung bình tích lũy (hệ 4):")) {
+                                termScoreSummary.setAvgGPAScore(Double.parseDouble(cols.get(0).text()));
+                            }
+                            if (cols.get(0).text().contains("Số tín chỉ đạt:")) {
+                              termScoreSummary.setCreditsTermCount(Integer.parseInt(cols.get(0).text()));
+                            }
+                            if (cols.get(0).text().contains("Số tín chỉ tích lũy:")) {
+                                termScoreSummary.setCreditsCount(Integer.parseInt(cols.get(0).text()));
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return termScoreSummary;
     }
 
