@@ -17,7 +17,9 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class StudentModel implements HyperBody {
     @Id
-    public String studenId;
+    public String studentId;
+
+    public String name;
 
     public Double avgScore;
 
@@ -29,6 +31,6 @@ public class StudentModel implements HyperBody {
 
     @Override
     public String toJson() {
-        return null;
+        return gson.toJson(this);
     }
 }

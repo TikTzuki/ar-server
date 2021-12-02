@@ -95,7 +95,7 @@ public class UserService {
             return hyperEntity;
         String authorization = hyperEntity.headers.get("Authorization");
 
-        if (!authorization.matches(".+:.+")) {
+        if (authorization == null || !authorization.matches(".+:.+")) {
             return HyperEntity.unauthorized(
                     new HyperException(HyperException.UNAUTHORIZED)
             );
@@ -112,6 +112,9 @@ public class UserService {
         Optional<UserModel> userOpt = userRepository.findById(userId);
         if (userOpt.isPresent()) {
             try {
+                if (hyperEntity.body == null)
+                    return hyperEntity;
+
                 UserModel user = userOpt.get();
                 String key = SecurityUtil.generateKey(user.getPublicKey(), user.getEmail());
                 hyperEntity.body = SecurityUtil.decrypt(

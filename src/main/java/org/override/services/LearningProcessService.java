@@ -3,6 +3,7 @@ package org.override.services;
 import lombok.extern.log4j.Log4j2;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
+import org.override.models.CreditModel;
 import org.override.models.LearningProcessModel;
 import org.override.repositories.CreditRepository;
 import org.springframework.stereotype.Service;
@@ -42,9 +43,11 @@ public class LearningProcessService {
     public HyperEntity getLearningProcess(String studenId, boolean includeAchieved, boolean includeNotAchieved) {
         String process = "(90/100)";
         Double percent = 10D;
-        return HyperEntity.ok(
-                new LearningProcessModel(percent, process, List.of())
+        List<CreditModel> credits = creditRepository.findAllIncludeCondition(
+                "18",
+                List.of("123", "456")
         );
+        return HyperEntity.ok(new LearningProcessModel(percent, process, credits));
     }
 
 }
