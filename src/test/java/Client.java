@@ -27,7 +27,7 @@ public class Client {
     static String INCLUDE_SUBJECT = "includeSubject";
     static String INCLUDE_SPECIALITY = "includeSpeciality";
 
-    static String keyString = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC1d9DD+ZvVVNzBpZD915fR6wuX4H1fFcsG306OtpJy/r9cr7zaSb7Vh2gY88m1SzBi0tURRg/C6nY0O0cJEUc1MvXeNSDaAPLrJpthK5O8yImYap+3ipCHB6zwZcAjWQwba6JBQhVd0qffytmsTEvalVHsM/R9fn96URd6XCjbCQIDAQAB";
+    static String keyString = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCX+SVuotBHJAMOOgB6mk92bGaPiSYYdr01YIDT4+iCd20z5wf/abD71ZUXbQHrIIGU2g/RCK6xt+38BdE7TpRWhfP+uVbR+XnAMpsuvwlV0vKE63znQcnjk8dEXy6PbGG+B54dohypXlupdvDciW2QGqhAD01a17SCpI5oMcfbgQIDAQAB";
     static String email = "string";
     public String USER_ID = "1";
 

@@ -73,3 +73,9 @@ server response exception:
 
 - Mã hóa nội dung tin nhắn giữa client – server. Phải sử dụng key khác nhau cho các client.
 - Các client phải chạy trên các máy tính khác nhau.
+
+Database:
+host:45.119.84.250:5432
+username:postgres
+password:123456
+db:products
