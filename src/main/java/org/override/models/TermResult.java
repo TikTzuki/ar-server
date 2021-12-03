@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.override.core.models.HyperBody;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -12,7 +13,7 @@ import java.util.List;
 @Data
 public class TermResult implements HyperBody {
     public StudentSummary studentSummary;
-    public List<TermResultItem> termResultItems;
+    public List<TermResultItem> termResultItems = new ArrayList<>();
 
     @Override
     public String toJson() {
@@ -25,7 +26,7 @@ public class TermResult implements HyperBody {
     public static class TermResultItem {
         public Integer term;
         public String year;
-        public List<TermScoreItem> termScoreItems;
+        public List<TermScoreItem> termScoreItems = new ArrayList<>();
         public TermScoreSummary termScoreSummary;
     }
 }
