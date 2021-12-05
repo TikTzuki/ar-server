@@ -3,14 +3,16 @@ package org.override.services;
 import lombok.extern.log4j.Log4j2;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
+import org.override.core.models.HyperStatus;
 import org.override.models.CreditModel;
 import org.override.models.LearningProcessModel;
+import org.override.models.TermResult;
 import org.override.repositories.CreditRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Log4j2
@@ -19,6 +21,17 @@ public class LearningProcessService {
     String INCLUDE_ACHIEVED = "includeAchieved";
     String INCLUDE_NOT_ACHIEVED = "includeNotAchieved";
     final CreditRepository creditRepository;
+    String[] notIncludeCredits = new String[]{"BOBA1"};
+    Map<String, Integer> minCreditsRequred = new HashMap<>() {{
+        put("17", 147);
+        put("18", 147);
+        put("19", 147);
+        put("20", 158);
+        put("21", 158);
+    }};
+
+    @Autowired
+    TermResultService termResultService;
 
     public LearningProcessService(CreditRepository creditRepository) {
         this.creditRepository = creditRepository;
@@ -41,12 +54,31 @@ public class LearningProcessService {
     }
 
     public HyperEntity getLearningProcess(String studenId, boolean includeAchieved, boolean includeNotAchieved) {
-        String process = "(90/100)";
-        Double percent = 10D;
-        List<CreditModel> credits = creditRepository.findAllIncludeCondition(
-                "18",
-                List.of("123", "456")
+
+        HyperEntity res = termResultService.termR(studenId);
+        if (!res.status.equals(HyperStatus.OK))
+            return res;
+
+        TermResult termResult = TermResult.fromJson(res.body);
+        List<String> ids = termResult.termResultItems.stream().map(i ->
+                i.termScoreItems.stream().map(scoreItem ->
+                        scoreItem.subjectId
+                ).collect(Collectors.toList())
+        ).flatMap(Collection::stream).collect(Collectors.toList());
+
+        String course = termResult.studentSummary.id.substring(2, 4);
+        List<CreditModel> credits = creditRepository.findAllNotIncludeCondition(
+                course,
+                ids
         );
+        Integer minCredit = minCreditsRequred.get(course);
+        List<String> processSubjectId = ids.stream().filter(
+                id -> !Arrays.stream(notIncludeCredits).toList().contains(id)
+        ).collect(Collectors.toList());
+        String process = "(%s/%s)".formatted(processSubjectId.size(), minCredit);
+        Double percent = ((double) processSubjectId.size() / minCredit) * 100;
+
+
         return HyperEntity.ok(new LearningProcessModel(percent, process, credits));
     }
 

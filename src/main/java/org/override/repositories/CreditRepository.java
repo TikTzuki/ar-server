@@ -13,9 +13,9 @@ public interface CreditRepository extends JpaRepository<CreditModel, String> {
     @Query("SELECT c  " +
             "FROM CreditModel c " +
             "WHERE c.courses LIKE %:course% " +
-            "AND c.subjectId IN (:subjectIds)"
+            "AND c.subjectId NOT IN (:subjectIds)"
     )
-    List<CreditModel> findAllIncludeCondition(
+    List<CreditModel> findAllNotIncludeCondition(
             @Param("course") String course,
             @Param("subjectIds") List<String> subjectIds
     );

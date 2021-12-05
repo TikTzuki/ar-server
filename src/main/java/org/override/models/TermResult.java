@@ -20,6 +20,10 @@ public class TermResult implements HyperBody {
         return gson.toJson(this);
     }
 
+    public static TermResult fromJson(String json) {
+        return gson.fromJson(json, TermResult.class);
+    }
+
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
