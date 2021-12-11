@@ -118,11 +118,11 @@
             <artifactId>springfox-swagger-ui</artifactId>
             <version>2.9.2</version>
         </dependency>
-<dependency>
-    <groupId>com.vladmihalcea</groupId>
-    <artifactId>hibernate-types-52</artifactId>
-    <version>2.14.0</version>
-</dependency>
+        <dependency>
+            <groupId>com.vladmihalcea</groupId>
+            <artifactId>hibernate-types-52</artifactId>
+            <version>2.14.0</version>
+        </dependency>
 
     </dependencies>
 
