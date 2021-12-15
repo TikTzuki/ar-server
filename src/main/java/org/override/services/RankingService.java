@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Log4j2
@@ -84,8 +86,81 @@ public class RankingService {
         }
     }
 
+    public void scanStudents() {
+
+    }
+
+    private String studentIdIterator() {
+        return null;
+    }
+
+    static class StudentIdIterator implements Iterator<String> {
+        /*
+        31 là hệ ĐH [21 là hệ cđ] ;
+         15 là Khóa 15 ;
+         22 là mã ngành,
+          0076 là số thứ tự
+        */
+        String type = "31";
+        List<Integer> subjects = Stream.of(
+                41, // "Công nghệ thông tin"
+                42 // "Tài chính - Kế toán"
+        ).collect(Collectors.toList());
+        List<Integer> coursesOrigin = Stream.of(17, 18, 19, 20, 21).collect(Collectors.toList());
+        List<Integer> courses;
+
+        Integer currentSubject;
+        Integer currentCourse;
+        int i = 0;
+        int maxStudent = 5;
+
+        public StudentIdIterator() {
+            courses = new ArrayList<>(coursesOrigin);
+            this.currentSubject = subjects.remove(0);
+            this.currentCourse = courses.remove(0);
+        }
+
+        @Override
+        public boolean hasNext() {
+            System.out.format("%s %s %s %s \n",subjects, subjects.isEmpty(), courses, i);
+            return (!subjects.isEmpty()) && (!courses.isEmpty()) && (i <= maxStudent);
+        }
+
+        @Override
+        public String next() {
+            String index = "000%s".formatted(i);
+            String id = "%s%s%s%s".formatted(
+                    type, currentCourse, currentSubject, index.substring(index.length() - 4)
+            );
+            i++;
+            /*
+nếu hết người {
+còn couse -> người về 0, course tiếp theo
+hết couse -> người về 0, course mới, subject mới
+            */
+//
+
+            if (i > maxStudent) {
+                i = 0;
+                System.out.println("------------->");
+                System.out.println(courses);
+                if (courses.isEmpty()) {
+                    System.out.println("empty");
+                    courses = new ArrayList<>(coursesOrigin);
+                    currentCourse = courses.remove(0);
+                    currentSubject = subjects.remove(0);
+                } else {
+                    currentCourse = courses.remove(0);
+                }
+            }
+            return id;
+        }
+    }
+
     public static void main(String[] args) {
-        Type collectionType = new TypeToken<List<ExampleModel>>() {
-        }.getType();
+        StudentIdIterator studentIdIterator = new StudentIdIterator();
+        while (studentIdIterator.hasNext()) {
+            studentIdIterator.next();
+        }
     }
 }
