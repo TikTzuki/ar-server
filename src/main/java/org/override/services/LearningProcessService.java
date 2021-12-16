@@ -67,16 +67,16 @@ public class LearningProcessService {
         ).flatMap(Collection::stream).collect(Collectors.toList());
 
         String course = termResult.studentSummary.id.substring(2, 4);
-        List<CreditModel> credits = creditRepository.findAllNotIncludeCondition(
-                course,
-                ids
-        );
+        List<CreditModel> credits = creditRepository.findAllNotIncludeCondition(course, ids);
+
+        Integer earnedCreditsCount = creditRepository.sumOfCreditsCondition(course, ids);
+
         Integer minCredit = minCreditsRequred.get(course);
-        List<String> processSubjectId = ids.stream().filter(
-                id -> !Arrays.stream(notIncludeCredits).toList().contains(id)
-        ).collect(Collectors.toList());
-        String process = "(%s/%s)".formatted(processSubjectId.size(), minCredit);
-        Double percent = ((double) processSubjectId.size() / minCredit) * 100;
+//        List<String> processSubjectId = ids.stream().filter(
+//                id -> !Arrays.stream(notIncludeCredits).toList().contains(id)
+//        ).collect(Collectors.toList());
+        String process = "(%s/%s)".formatted(earnedCreditsCount, minCredit);
+        Double percent = ((double) earnedCreditsCount / minCredit) * 100;
 
 
         return HyperEntity.ok(new LearningProcessModel(percent, process, credits));
