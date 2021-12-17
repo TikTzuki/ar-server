@@ -19,4 +19,14 @@ public interface CreditRepository extends JpaRepository<CreditModel, String> {
             @Param("course") String course,
             @Param("subjectIds") List<String> subjectIds
     );
+
+    @Query("SELECT SUM(c.creditsCount)" +
+            "FROM CreditModel c " +
+            "WHERE c.courses LIKE %:course% " +
+            "AND c.subjectId IN (:subjectIds)"
+    )
+    Integer sumOfCreditsCondition(
+            @Param("course") String course,
+            @Param("subjectIds") List<String> subjectIds
+    );
 }
