@@ -7,10 +7,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.override.core.models.HyperEntity;
 import org.override.core.models.HyperException;
-import org.override.models.ExampleModel;
-import org.override.models.PagingModel;
-import org.override.models.StudentModel;
+import org.override.core.models.HyperStatus;
+import org.override.models.*;
 import org.override.repositories.StudentRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -28,6 +28,8 @@ public class RankingService {
     static String INCLUDE_COURSE = "course";
     static String INCLUDE_SUBJECT = "includeSubject";
     static String INCLUDE_SPECIALITY = "includeSpeciality";
+    @Autowired
+    TermResultService termResultService;
 
     @NonNull
     final StudentRepository studentRepository;
@@ -87,11 +89,23 @@ public class RankingService {
     }
 
     public void scanStudents() {
-
-    }
-
-    private String studentIdIterator() {
-        return null;
+        StudentIdIterator studentIdIterator = new StudentIdIterator();
+        while (studentIdIterator.hasNext()) {
+            HyperEntity entity = termResultService.termR(studentIdIterator.next());
+            if (entity.status.equals(HyperStatus.OK)) {
+                TermResult termResult = TermResult.fromJson(entity.body);
+                TermScoreSummary termScoreSummary = termResult.termResultItems.get(termResult.termResultItems.size() - 1).termScoreSummary;
+                if (termScoreSummary == null)
+                    termScoreSummary = termResult.termResultItems.get(termResult.termResultItems.size() - 2).termScoreSummary;
+                System.out.format("%s %s %s %s %s",
+                        termResult.studentSummary.id,
+                        termScoreSummary.avgScore,
+                        termResult.studentSummary.id.substring(2, 4),
+                        termResult.studentSummary.subject,
+                        termResult.studentSummary.speciality
+                );
+            }
+        }
     }
 
     static class StudentIdIterator implements Iterator<String> {
@@ -122,8 +136,8 @@ public class RankingService {
 
         @Override
         public boolean hasNext() {
-            System.out.format("%s %s %s %s \n",subjects, subjects.isEmpty(), courses, i);
-            return (!subjects.isEmpty()) && (!courses.isEmpty()) && (i <= maxStudent);
+//            System.out.format("%s %s %s %s %s \n", subjects, subjects.isEmpty(), courses.isEmpty(), i, (!subjects.isEmpty()) || (!courses.isEmpty()) || (i <= maxStudent));
+            return !(subjects.isEmpty() && courses.isEmpty());
         }
 
         @Override
@@ -142,10 +156,9 @@ hết couse -> người về 0, course mới, subject mới
 
             if (i > maxStudent) {
                 i = 0;
-                System.out.println("------------->");
-                System.out.println(courses);
-                if (courses.isEmpty()) {
+                if (courses.isEmpty() && subjects.isEmpty()) {
                     System.out.println("empty");
+                } else if (courses.isEmpty()) {
                     courses = new ArrayList<>(coursesOrigin);
                     currentCourse = courses.remove(0);
                     currentSubject = subjects.remove(0);
@@ -160,7 +173,8 @@ hết couse -> người về 0, course mới, subject mới
     public static void main(String[] args) {
         StudentIdIterator studentIdIterator = new StudentIdIterator();
         while (studentIdIterator.hasNext()) {
-            studentIdIterator.next();
+            String studenId = studentIdIterator.next();
+            System.out.println(studenId);
         }
     }
 }

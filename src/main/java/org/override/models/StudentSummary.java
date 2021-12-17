@@ -15,5 +15,6 @@ public class StudentSummary {
     public String dateOfBirth;
     public String classes;
     public String subject;
+    public String speciality;
 
 }

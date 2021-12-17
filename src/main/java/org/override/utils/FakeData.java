@@ -17,7 +17,8 @@ public class FakeData {
                         "Đồng Nai",
                         null,
                         "DCT1188( Đại học chính quy - ngành Công nghệ thông tin - K.18 - Lớp 8)",
-                        "Công nghệ thông tin"
+                        "Công nghệ thông tin",
+                        "asd"
                 ),
                 List.of(
                         new TermResult.TermResultItem(

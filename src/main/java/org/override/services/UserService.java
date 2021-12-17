@@ -13,6 +13,7 @@ import org.override.models.UserModel;
 import org.override.repositories.UserRepository;
 import org.override.utils.RSAUtil;
 import org.override.utils.SecurityUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Example;
@@ -38,6 +39,8 @@ import java.util.Optional;
 @ResponseBody
 public class UserService {
     final UserRepository userRepository;
+    @Autowired
+    RankingService rankingService;
 
     @Value("${salt}")
     String salt;
@@ -64,6 +67,11 @@ public class UserService {
     @RequestMapping(path = "login", method = RequestMethod.POST)
     public ResponseEntity<Object> login(@RequestBody HyperEntity body) {
         return ResponseEntity.ok(handleLogin(body));
+    }
+
+    @RequestMapping(path = "scan-student", method = RequestMethod.POST)
+    public void scanStudent() {
+        rankingService.scanStudents();
     }
 
     public HyperEntity handleLogin(HyperEntity entity) {

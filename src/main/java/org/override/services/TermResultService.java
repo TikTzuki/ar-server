@@ -101,6 +101,8 @@ public class TermResultService {
             String placeOfBirth = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblNoiSinh").text();
             String clazz = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblLop").text();
             String majors = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lbNganh").text();
+            Element elSpeciality = document.getElementById("ctl00_ContentPlaceHolder1_ctl00_ucThongTinSV_lblChNg");
+            String speciality = elSpeciality != null ? elSpeciality.text() : null;
 
             StudentSummary studentSummary = new StudentSummary();
             studentSummary.setId(mssv);
@@ -110,6 +112,7 @@ public class TermResultService {
             studentSummary.setPlaceOfBirth(placeOfBirth);
             studentSummary.setClasses(clazz);
             studentSummary.setSubject(majors);
+            studentSummary.setSpeciality(speciality);
             termResult.setStudentSummary(studentSummary);
 
 
@@ -169,7 +172,6 @@ public class TermResultService {
                                         cols.get(0).getElementsByTag(span).get(1).text()
                                 ).orElse(null)
                         );
-                        System.out.println(cols.get(0).text());
                     }
                     row = itr.next();
                     cols = row.select("td");
@@ -179,7 +181,6 @@ public class TermResultService {
                                         cols.get(0).getElementsByTag(span).get(1).text()
                                 ).orElse(null)
                         );
-                        System.out.println(cols.get(0).text());
                     }
                     row = itr.next();
                     cols = row.select("td");
@@ -189,7 +190,6 @@ public class TermResultService {
                                         cols.get(0).getElementsByTag(span).get(1).text()
                                 ).orElse(null)
                         );
-                        System.out.println(cols.get(0).text());
                     }
                     row = itr.next();
                     cols = row.select("td");
@@ -199,7 +199,6 @@ public class TermResultService {
                                         cols.get(0).getElementsByTag(span).get(1).text()
                                 ).orElse(null)
                         );
-                        System.out.println(cols.get(0).text());
                     }
                     row = itr.next();
                     cols = row.select("td");
@@ -209,7 +208,6 @@ public class TermResultService {
                                         cols.get(0).getElementsByTag(span).get(1).text()
                                 ).orElse(null)
                         );
-                        System.out.println(cols.get(0).text());
                     }
                     row = itr.next();
                     cols = row.select("td");
@@ -219,7 +217,6 @@ public class TermResultService {
                                         cols.get(0).getElementsByTag(span).get(1).text()
                                 ).orElse(null)
                         );
-                        System.out.println(cols.get(0).text());
                     }
                     currentTermResulItem.setTermScoreSummary(termScoreSummary);
                 }
