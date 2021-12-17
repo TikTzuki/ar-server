@@ -241,7 +241,6 @@ public class TermResultService {
 
             String[] parts = name_dateOfBirth.split(":");
             String date = parts[1];
-            log.info(date);
 
             result.append(date);
         } catch (IOException e) {

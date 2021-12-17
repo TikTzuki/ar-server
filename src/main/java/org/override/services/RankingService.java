@@ -1,6 +1,5 @@
 package org.override.services;
 
-import com.google.gson.reflect.TypeToken;
 import lombok.Data;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -91,19 +89,35 @@ public class RankingService {
     public void scanStudents() {
         StudentIdIterator studentIdIterator = new StudentIdIterator();
         while (studentIdIterator.hasNext()) {
-            HyperEntity entity = termResultService.termR(studentIdIterator.next());
-            if (entity.status.equals(HyperStatus.OK)) {
-                TermResult termResult = TermResult.fromJson(entity.body);
-                TermScoreSummary termScoreSummary = termResult.termResultItems.get(termResult.termResultItems.size() - 1).termScoreSummary;
-                if (termScoreSummary == null)
-                    termScoreSummary = termResult.termResultItems.get(termResult.termResultItems.size() - 2).termScoreSummary;
-                System.out.format("%s %s %s %s %s",
-                        termResult.studentSummary.id,
-                        termScoreSummary.avgScore,
-                        termResult.studentSummary.id.substring(2, 4),
-                        termResult.studentSummary.subject,
-                        termResult.studentSummary.speciality
-                );
+            try {
+                HyperEntity entity = termResultService.termR(studentIdIterator.next());
+                if (entity.status.equals(HyperStatus.OK)) {
+                    TermResult termResult = TermResult.fromJson(entity.body);
+                    TermScoreSummary termScoreSummary = null;
+                    int i = 1;
+                    while (termScoreSummary == null && i < termResult.termResultItems.size()) {
+                        termScoreSummary = termResult.termResultItems.get(termResult.termResultItems.size() - i).termScoreSummary;
+                        i++;
+                    }
+//                System.out.format("%s %s %s %s %s \n",
+//                        termResult.studentSummary.id,
+//                        termScoreSummary != null ? termScoreSummary.avgScore : null,
+//                        termResult.studentSummary.id.substring(2, 4),
+//                        termResult.studentSummary.subject,
+//                        termResult.studentSummary.speciality
+//                );
+                    studentRepository.save(
+                            new StudentModel(
+                                    termResult.studentSummary.id,
+                                    termResult.studentSummary.name,
+                                    termScoreSummary != null ? termScoreSummary.avgScore : null,
+                                    Integer.valueOf(termResult.studentSummary.id.substring(2, 4)),
+                                    termResult.studentSummary.subject,
+                                    termResult.studentSummary.speciality
+                            )
+                    );
+                }
+            } catch (Exception ignore) {
             }
         }
     }
@@ -136,7 +150,6 @@ public class RankingService {
 
         @Override
         public boolean hasNext() {
-//            System.out.format("%s %s %s %s %s \n", subjects, subjects.isEmpty(), courses.isEmpty(), i, (!subjects.isEmpty()) || (!courses.isEmpty()) || (i <= maxStudent));
             return !(subjects.isEmpty() && courses.isEmpty());
         }
 
@@ -167,14 +180,6 @@ hết couse -> người về 0, course mới, subject mới
                 }
             }
             return id;
-        }
-    }
-
-    public static void main(String[] args) {
-        StudentIdIterator studentIdIterator = new StudentIdIterator();
-        while (studentIdIterator.hasNext()) {
-            String studenId = studentIdIterator.next();
-            System.out.println(studenId);
         }
     }
 }

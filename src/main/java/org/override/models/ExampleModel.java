@@ -21,7 +21,4 @@ public class ExampleModel implements HyperBody {
         return gson.toJson(this);
     }
 
-    public static void main(String[] args) {
-       log.warn("Vu cute");
-    }
 }
