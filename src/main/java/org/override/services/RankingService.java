@@ -44,12 +44,12 @@ public class RankingService {
                     "%s is required".formatted(STUDENT_ID)
             ));
         }
-        if (!(includeCourse || includeSubject || includeSpeciality))
-            return HyperEntity.badRequest(new HyperException(
-                    HyperException.BAD_REQUEST,
-                    "headers -> include*",
-                    "%s or %s or %s must be true".formatted(INCLUDE_COURSE, INCLUDE_SUBJECT, INCLUDE_SPECIALITY)
-            ));
+//        if (!(includeCourse || includeSubject || includeSpeciality))
+//            return HyperEntity.badRequest(new HyperException(
+//                    HyperException.BAD_REQUEST,
+//                    "headers -> include*",
+//                    "%s or %s or %s must be true".formatted(INCLUDE_COURSE, INCLUDE_SUBJECT, INCLUDE_SPECIALITY)
+//            ));
         Optional<StudentModel> studentOpt = studentRepository.findById(studentId);
         if (studentOpt.isPresent()) {
             StudentModel student = studentOpt.get();
@@ -170,7 +170,7 @@ hết couse -> người về 0, course mới, subject mới
             if (i > maxStudent) {
                 i = 0;
                 if (courses.isEmpty() && subjects.isEmpty()) {
-                    System.out.println("empty");
+                    System.out.println("emty");
                 } else if (courses.isEmpty()) {
                     courses = new ArrayList<>(coursesOrigin);
                     currentCourse = courses.remove(0);
