@@ -1,6 +1,7 @@
 package org.override.services;
 
 import com.google.gson.JsonSyntaxException;
+import io.swagger.annotations.*;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -9,6 +10,7 @@ import org.override.core.models.HyperException;
 import org.override.core.models.HyperRoute;
 import org.override.core.models.HyperStatus;
 import org.override.models.AuthenticationModel;
+import org.override.models.ScanStudentRequest;
 import org.override.models.UserModel;
 import org.override.repositories.UserRepository;
 import org.override.utils.RSAUtil;
@@ -32,6 +34,11 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Optional;
 
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 @Log4j2
 @RestController
@@ -70,8 +77,27 @@ public class UserService {
     }
 
     @RequestMapping(path = "scan-student", method = RequestMethod.POST)
-    public void scanStudent() {
-        rankingService.scanStudents();
+    @ApiOperation(value = "Quét thông tin điểm sinh viên sgu", notes = """
+            courses: Khóa
+            subjects: Mã ngành
+            from: thứ tự sinh vien bắt đầu.
+            to: thứ tự sinh vien kết thúc.
+            {
+              "courses": [
+                17, 18
+              ],
+              "subjects": [
+                43, 44, 45, 47, 48
+              ],
+              "from": 0,
+              "to": 10
+            }
+            """)
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "success")
+    })
+    public void scanStudent(@RequestBody ScanStudentRequest scanStudentRequest) {
+        rankingService.scanStudents(scanStudentRequest);
     }
 
     public HyperEntity handleLogin(HyperEntity entity) {

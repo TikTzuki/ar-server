@@ -86,8 +86,8 @@ public class RankingService {
         }
     }
 
-    public void scanStudents() {
-        StudentIdIterator studentIdIterator = new StudentIdIterator();
+    public void scanStudents(ScanStudentRequest scanStudentRequest) {
+        StudentIdIterator studentIdIterator = new StudentIdIterator(scanStudentRequest);
         while (studentIdIterator.hasNext()) {
             try {
                 HyperEntity entity = termResultService.termR(studentIdIterator.next());
@@ -143,6 +143,17 @@ public class RankingService {
         int maxStudent = 5;
 
         public StudentIdIterator() {
+            courses = new ArrayList<>(coursesOrigin);
+            this.currentSubject = subjects.remove(0);
+            this.currentCourse = courses.remove(0);
+        }
+
+        public StudentIdIterator(ScanStudentRequest scanStudentRequest) {
+            this.subjects = scanStudentRequest.getSubjects();
+            this.coursesOrigin = scanStudentRequest.getCourses();
+            this.i = scanStudentRequest.getFrom();
+            this.maxStudent = scanStudentRequest.getTo();
+
             courses = new ArrayList<>(coursesOrigin);
             this.currentSubject = subjects.remove(0);
             this.currentCourse = courses.remove(0);

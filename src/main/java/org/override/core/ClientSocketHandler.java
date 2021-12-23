@@ -30,7 +30,6 @@ public abstract class ClientSocketHandler implements Runnable {
             in = new ObjectInputStream(clientSocket.getInputStream());
             this.handleRequest();
         } catch (IOException | ClassNotFoundException | InvalidAlgorithmParameterException | NoSuchPaddingException | IllegalBlockSizeException | NoSuchAlgorithmException | BadPaddingException | InvalidKeySpecException | InvalidKeyException e) {
-            e.printStackTrace();
             log.info(e.getClass());
             log.info(e.getMessage());
             log.info(e.getCause());
